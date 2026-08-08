@@ -3,10 +3,8 @@
 A single-page, self-contained habit tracker for six daily targets: Exercise, Language learning, Repository & CV work, Sleep, Diet, and Water.
 
 Ticks are saved automatically to your browser's local storage, with a live streak counter per habit and an overall progress bar. Optional cloud sync via a private GitHub Gist keeps it in sync across browsers/devices.
-## Preview
 
 <video src="./preview.MP4" controls width="800">
-  Your browser does not support the video tag.
 </video>
 
 ## Usage
