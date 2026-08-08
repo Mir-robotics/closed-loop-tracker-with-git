@@ -26,8 +26,6 @@ By default, ticks only save to the one browser you're using (`localStorage`). To
 
 ## Enabling GitHub Pages
 
-## Enabling GitHub Pages
-
 1. Push this repo to GitHub (steps below).
 2. On GitHub, go to **Settings → Pages**.
 3. Under "Build and deployment", set **Source** to `Deploy from a branch`, branch `main`, folder `/ (root)`.
@@ -41,6 +39,3 @@ By default, ticks only save to the one browser you're using (`localStorage`). To
 └── README.md
 ```
 
-## License
-
-Personal use — adapt freely.
