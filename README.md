@@ -3,7 +3,7 @@
 A single-page, self-contained habit tracker for six daily targets: Exercise, Language learning, Repository & CV work, Sleep, Diet, and Water.
 
 Ticks are saved automatically to your browser's local storage, with a live streak counter per habit and an overall progress bar. Optional cloud sync via a private GitHub Gist keeps it in sync across browsers/devices.
-
+https://github.com/Mir-robotics/closed-loop-tracker-with-git/blob/main/preview.MOV
 ## Usage
 
 Just open `index.html` in a browser — no build step, no dependencies to install. **Don't just double-click the file** (some browsers block local storage for `file://` pages) — either use GitHub Pages (below) or run a quick local server:
