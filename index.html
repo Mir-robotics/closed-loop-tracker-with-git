@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Closed-Loop — 30-Day Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#EEF2F6;
+  --panel:#FFFFFF;
+  --grid-line:#D7DEE6;
+  --ink:#1B2436;
+  --muted:#6B7686;
+  --amber:#C97C2A;
+  --steel:#3A7CA5;
+  --ok:#2F9E68;
+  --ok-bg:#E6F4EC;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/100% 28px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/28px 100%,
+    var(--bg);
+  background-blend-mode:normal;
+  opacity:1;
+  color:var(--ink);
+  font-family:'IBM Plex Sans', system-ui, sans-serif;
+  padding:28px 20px 60px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+header{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:22px;
+  padding-bottom:18px;
+  border-bottom:2px solid var(--ink);
+}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  letter-spacing:.14em;
+  color:var(--steel);
+  text-transform:uppercase;
+  margin:0 0 6px;
+}
+h1{
+  font-family:'Space Grotesk', sans-serif;
+  font-size:clamp(24px,4vw,34px);
+  margin:0;
+  font-weight:700;
+  line-height:1.1;
+}
+h1 span{color:var(--amber);}
+.sub{
+  font-size:14px;
+  color:var(--muted);
+  margin:8px 0 0;
+  max-width:46ch;
+}
+.stat{
+  text-align:right;
+  font-family:'IBM Plex Mono', monospace;
+}
+.stat .big{
+  font-size:32px;
+  font-weight:600;
+  color:var(--amber);
+  line-height:1;
+}
+.stat .lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;}
+
+.progress-track{
+  height:8px;
+  background:var(--grid-line);
+  border-radius:99px;
+  overflow:hidden;
+  margin:18px 0 26px;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--steel), var(--ok));
+  width:0%;
+  transition:width .5s ease;
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--grid-line);
+  border-radius:var(--radius);
+  box-shadow:0 1px 0 rgba(27,36,54,.04);
+}
+
+.table-scroll{
+  overflow-x:auto;
+  border-radius:var(--radius);
+}
+table{border-collapse:collapse;width:100%;min-width:900px;}
+thead th{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--muted);
+  font-weight:500;
+  padding:10px 4px;
+  text-align:center;
+  border-bottom:1px solid var(--grid-line);
+  position:sticky;
+  top:0;
+  background:var(--panel);
+  z-index:2;
+}
+thead th.wk{color:var(--steel);font-weight:600;}
+thead th.habit-col, tbody td.habit-col{
+  text-align:left;
+  padding-left:14px;
+  min-width:190px;
+  position:sticky;
+  left:0;
+  background:var(--panel);
+  z-index:3;
+  border-right:1px solid var(--grid-line);
+}
+tbody tr:not(:last-child) td{border-bottom:1px solid var(--grid-line);}
+tbody td{padding:8px 3px;text-align:center;}
+.habit-name{font-weight:600;font-size:13.5px;}
+.habit-target{
+  display:block;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10.5px;
+  color:var(--muted);
+  font-weight:400;
+  margin-top:1px;
+}
+.streak{
+  display:inline-block;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10px;
+  color:var(--ok);
+  background:var(--ok-bg);
+  padding:2px 6px;
+  border-radius:99px;
+  margin-top:4px;
+}
+
+.tick{
+  appearance:none;
+  -webkit-appearance:none;
+  width:20px;
+  height:20px;
+  border:1.5px solid var(--grid-line);
+  border-radius:5px;
+  cursor:pointer;
+  position:relative;
+  background:var(--panel);
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.tick:hover{border-color:var(--steel);}
+.tick:checked{
+  background:var(--ok);
+  border-color:var(--ok);
+}
+.tick:checked::after{
+  content:'';
+  position:absolute;
+  left:5px; top:2px;
+  width:6px; height:10px;
+  border:solid white;
+  border-width:0 2px 2px 0;
+  transform:rotate(40deg);
+}
+.tick:active{transform:scale(.9);}
+.tick:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+@media (prefers-reduced-motion:reduce){
+  .tick, .progress-fill{transition:none;}
+}
+
+.legend{
+  margin-top:26px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;
+}
+.card{
+  padding:16px 16px 15px;
+}
+.card h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:15px;
+  margin:0 0 6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:none;}
+.card p{
+  font-size:12.8px;
+  color:var(--muted);
+  line-height:1.5;
+  margin:0;
+}
+.card .blocks{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.blk{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10.5px;
+  background:var(--bg);
+  border:1px solid var(--grid-line);
+  padding:3px 7px;
+  border-radius:6px;
+  color:var(--ink);
+}
+
+.sync-panel{
+  padding:14px 16px;
+  margin-bottom:18px;
+}
+.sync-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.sync-row strong{font-size:13.5px;}
+.sync-desc{
+  font-size:12px;
+  color:var(--muted);
+  margin:3px 0 0;
+  max-width:52ch;
+  line-height:1.5;
+}
+.sync-controls{
+  display:flex;
+  gap:8px;
+  flex:none;
+}
+.sync-controls input{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  padding:7px 9px;
+  border:1px solid var(--grid-line);
+  border-radius:6px;
+  width:190px;
+  background:var(--bg);
+  color:var(--ink);
+}
+.sync-controls input:focus-visible{outline:2px solid var(--amber);outline-offset:1px;}
+.sync-controls button{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  font-weight:600;
+  padding:7px 14px;
+  border:1px solid var(--steel);
+  background:var(--steel);
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+}
+.sync-controls button:hover{opacity:.9;}
+.sync-status{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--muted);
+  margin-top:10px;
+}
+.sync-status a{color:var(--steel);}
+
+.foot{
+  margin-top:22px;
+  padding-top:14px;
+  border-top:1px solid var(--grid-line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  font-size:12px;
+  color:var(--muted);
+}
+button.reset{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+  color:var(--muted);
+  background:none;
+  border:1px solid var(--grid-line);
+  border-radius:6px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+button.reset:hover{border-color:var(--amber);color:var(--amber);}
+.status{font-family:'IBM Plex Mono', monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="eyebrow">Observer-based habit control · Aug 08 – Sep 06, 2026</p>
+      <h1>Closed<span>-</span>Loop <span>//</span> 30-Day Plan</h1>
+      <p class="sub">Six signals to track daily. Every tick closes the loop — no sensor, just you reporting state.</p>
+    </div>
+    <div class="stat">
+      <div class="big" id="pct">0%</div>
+      <div class="lbl" id="pctSub">0 / 180 closed</div>
+    </div>
+  </header>
+
+  <div class="panel sync-panel" id="syncPanel">
+    <div class="sync-row">
+      <div>
+        <strong>☁ Cloud sync (optional)</strong>
+        <p class="sync-desc">Paste a GitHub personal access token with <code>gist</code> scope to save your ticks to a private Gist — this makes them follow you across browsers and devices. Skip this and it just saves to this browser only.</p>
+      </div>
+      <div class="sync-controls">
+        <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+        <button id="connectBtn">Connect</button>
+      </div>
+    </div>
+    <div class="sync-status" id="syncStatus">Not connected — saving to this browser only.</div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="fill"></div></div>
+
+  <div class="panel table-scroll">
+    <table id="grid"></table>
+  </div>
+
+  <div class="foot">
+    <span class="status" id="saveStatus">loading…</span>
+    <button class="reset" id="resetBtn">Reset all ticks</button>
+  </div>
+
+  <div class="legend">
+    <div class="panel card">
+      <h3><span class="dot"></span>Exercise</h3>
+      <p><span class="blk">1.5 hrs / day</span> Any mix of strength + cardio. Tick only when the full session is done, not started.</p>
+    </div>
+    <div class="panel card">
+      <h3><span class="dot" style="background:var(--steel)"></span>Learning language</h3>
+      <p>4 blocks/day. Tick once all four are complete.</p>
+      <div class="blocks">
+        <span class="blk">Warm-up</span><span class="blk">New input</span><span class="blk">Speaking drill</span><span class="blk">Review</span>
+      </div>
+    </div>
+    <div class="panel card">
+      <h3><span class="dot" style="background:var(--ok)"></span>Repository & CV improvement</h3>
+      <p>One concrete improvement/day — a commit, doc update, refactor, or a CV line edited/added. Small counts.</p>
+    </div>
+    <div class="panel card">
+      <h3><span class="dot"></span>Sleep</h3>
+      <p>7–8 hrs, consistent bed/wake time. Tick in the morning for the night just finished.</p>
+    </div>
+    <div class="panel card">
+      <h3><span class="dot" style="background:var(--steel)"></span>Diet</h3>
+      <p>Regular meals, no skipping, reasonable portions — whatever "on plan" means for you today.</p>
+    </div>
+    <div class="panel card">
+      <h3><span class="dot" style="background:var(--ok)"></span>Water</h3>
+      <p><span class="blk">~2–2.5 L / day</span> Tick when you hit your target.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const HABITS = [
+  {name:"Exercise", target:"1.5 hrs"},
+  {name:"Learning language", target:"4 blocks"},
+  {name:"Repository & CV", target:"1 improvement"},
+  {name:"Sleep", target:"7–8 hrs"},
+  {name:"Diet", target:"on plan"},
+  {name:"Water", target:"2–2.5 L"},
+];
+const DAYS = 30;
+const START = new Date(2026,7,8); // Aug 8 2026
+const STORAGE_KEY = 'closed-loop-30day-v1';
+
+let state = HABITS.map(()=>Array(DAYS).fill(false));
+
+// --- Optional GitHub Gist cloud sync ---
+const GH_TOKEN_KEY = 'closed-loop-gh-token';
+const GH_GIST_KEY = 'closed-loop-gh-gist-id';
+const GIST_FILENAME = 'closed-loop-tracker-data.json';
+
+const getToken = () => localStorage.getItem(GH_TOKEN_KEY) || '';
+const getGistId = () => localStorage.getItem(GH_GIST_KEY) || '';
+
+async function ghRequest(url, options = {}){
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': 'token ' + getToken(),
+      'Accept': 'application/vnd.github+json',
+      ...(options.headers || {})
+    }
+  });
+  if(!res.ok) throw new Error('GitHub API ' + res.status);
+  return res.json();
+}
+
+function setSyncStatus(html){
+  const el = document.getElementById('syncStatus');
+  if(el) el.innerHTML = html;
+}
+
+async function loadFromGist(){
+  const gistId = getGistId();
+  if(!getToken() || !gistId) return false;
+  const gist = await ghRequest('https://api.github.com/gists/' + gistId);
+  const file = gist.files[GIST_FILENAME];
+  if(file){
+    const parsed = JSON.parse(file.content);
+    if(Array.isArray(parsed) && parsed.length === HABITS.length){
+      state = parsed;
+    }
+  }
+  setSyncStatus('Connected — synced to <a href="' + gist.html_url + '" target="_blank" rel="noopener">your Gist</a>.');
+  return true;
+}
+
+async function pushToGist(){
+  const token = getToken(), gistId = getGistId();
+  if(!token || !gistId) return;
+  try{
+    await ghRequest('https://api.github.com/gists/' + gistId, {
+      method:'PATCH',
+      body: JSON.stringify({ files: { [GIST_FILENAME]: { content: JSON.stringify(state) } } })
+    });
+  }catch(err){
+    setSyncStatus('Cloud save failed (local copy still safe). Reconnect if this persists.');
+  }
+}
+
+async function connectGithub(){
+  const tokenInput = document.getElementById('tokenInput');
+  const token = tokenInput.value.trim();
+  if(!token){ setSyncStatus('Enter a token first.'); return; }
+  localStorage.setItem(GH_TOKEN_KEY, token);
+  tokenInput.value = '';
+  setSyncStatus('Connecting…');
+  try{
+    if(getGistId()){
+      await loadFromGist();
+      applyStateToDom();
+    } else {
+      const body = {
+        description: 'Closed-Loop 30-Day Tracker data',
+        public: false,
+        files: { [GIST_FILENAME]: { content: JSON.stringify(state) } }
+      };
+      const gist = await ghRequest('https://api.github.com/gists', { method:'POST', body: JSON.stringify(body) });
+      localStorage.setItem(GH_GIST_KEY, gist.id);
+      setSyncStatus('Connected — created <a href="' + gist.html_url + '" target="_blank" rel="noopener">a new private Gist</a>.');
+    }
+    await save();
+  }catch(err){
+    setSyncStatus('Connection failed — check the token has "gist" scope and try again.');
+  }
+}
+
+function dateForDay(i){
+  const d = new Date(START);
+  d.setDate(d.getDate()+i);
+  return d;
+}
+function isWeekStart(i){ return dateForDay(i).getDay()===1; } // Monday marker
+
+function buildTable(){
+  const table = document.getElementById('grid');
+  let thead = '<thead><tr><th class="habit-col">Habit</th>';
+  for(let i=0;i<DAYS;i++){
+    const d = dateForDay(i);
+    const label = d.getDate();
+    thead += `<th class="${isWeekStart(i)?'wk':''}">${label}</th>`;
+  }
+  thead += '</tr></thead>';
+
+  let tbody = '<tbody>';
+  HABITS.forEach((h,hi)=>{
+    tbody += `<tr><td class="habit-col"><span class="habit-name">${h.name}</span><span class="habit-target">${h.target}</span><span class="streak" id="streak-${hi}">streak 0</span></td>`;
+    for(let d=0; d<DAYS; d++){
+      tbody += `<td><input type="checkbox" class="tick" data-h="${hi}" data-d="${d}"></td>`;
+    }
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+
+  table.querySelectorAll('.tick').forEach(cb=>{
+    cb.addEventListener('change', onToggle);
+  });
+}
+
+function onToggle(e){
+  const h = +e.target.dataset.h;
+  const d = +e.target.dataset.d;
+  state[h][d] = e.target.checked;
+  updateStreak(h);
+  updateProgress();
+  save();
+}
+
+function updateStreak(h){
+  let s = 0;
+  for(let d=DAYS-1; d>=0; d--){
+    if(state[h][d]) s++; else break;
+  }
+  const el = document.getElementById('streak-'+h);
+  if(el) el.textContent = 'streak ' + s;
+}
+
+function updateProgress(){
+  let total = HABITS.length*DAYS, done = 0;
+  state.forEach(row => row.forEach(v => { if(v) done++; }));
+  const pct = Math.round((done/total)*100);
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('pctSub').textContent = `${done} / ${total} closed`;
+  document.getElementById('fill').style.width = pct + '%';
+}
+
+function applyStateToDom(){
+  document.querySelectorAll('.tick').forEach(cb=>{
+    const h = +cb.dataset.h, d = +cb.dataset.d;
+    cb.checked = !!state[h][d];
+  });
+  HABITS.forEach((_,hi)=>updateStreak(hi));
+  updateProgress();
+}
+
+async function load(){
+  const statusEl = document.getElementById('saveStatus');
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length === HABITS.length){
+        state = parsed;
+      }
+    }
+    statusEl.textContent = 'synced';
+  }catch(err){
+    statusEl.textContent = 'starting fresh';
+  }
+
+  if(getToken() && getGistId()){
+    try{
+      await loadFromGist();
+    }catch(err){
+      setSyncStatus('Cloud sync failed to load — showing your last local copy.');
+    }
+  }
+
+  applyStateToDom();
+}
+
+async function save(){
+  const statusEl = document.getElementById('saveStatus');
+  statusEl.textContent = 'saving…';
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    statusEl.textContent = 'synced';
+  }catch(err){
+    statusEl.textContent = 'save failed';
+  }
+  await pushToGist();
+}
+
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  if(!confirm('Reset every tick for all 30 days?')) return;
+  state = HABITS.map(()=>Array(DAYS).fill(false));
+  applyStateToDom();
+  await save();
+});
+
+document.getElementById('connectBtn').addEventListener('click', connectGithub);
+
+buildTable();
+load();
+</script>
+</body>
+</html>
