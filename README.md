@@ -1,4 +1,4 @@
-# Closed-Loop — 30-Day Habit Tracker
+# Daily-Planner — 90-Day Habit Tracker
 
 A single-page, self-contained habit tracker for six daily targets: Exercise, Language learning, Repository & CV work, Sleep, Diet, and Water.
 
