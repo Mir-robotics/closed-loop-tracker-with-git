@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90-Day Planner</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#EEF2F6;
+  --panel:#FFFFFF;
+  --grid-line:#D7DEE6;
+  --ink:#1B2436;
+  --muted:#6B7686;
+  --amber:#C97C2A;
+  --steel:#3A7CA5;
+  --ok:#2F9E68;
+  --ok-bg:#E6F4EC;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0/100% 28px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0/28px 100%,
+    var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', system-ui, sans-serif;
+  padding:28px 20px 60px;
+}
+.wrap{max-width:1180px;margin:0 auto;}
+
+header{
+  display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px;
+  margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid var(--ink);
+}
+.eyebrow{font-family:'IBM Plex Mono', monospace;font-size:12px;letter-spacing:.14em;color:var(--steel);text-transform:uppercase;margin:0 0 6px;}
+h1{font-family:'Space Grotesk', sans-serif;font-size:clamp(24px,4vw,34px);margin:0;font-weight:700;line-height:1.1;}
+h1 span{color:var(--amber);}
+.sub{font-size:14px;color:var(--muted);margin:8px 0 0;max-width:46ch;}
+.stat{text-align:right;font-family:'IBM Plex Mono', monospace;}
+.stat .big{font-size:32px;font-weight:600;color:var(--amber);line-height:1;}
+.stat .lbl{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px;}
+
+.sync-panel{padding:14px 16px;margin-bottom:18px;}
+.sync-row{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.sync-row strong{font-size:13.5px;}
+.sync-desc{font-size:12px;color:var(--muted);margin:3px 0 0;max-width:52ch;line-height:1.5;}
+.sync-controls{display:flex;gap:8px;flex:none;}
+.sync-controls input{font-family:'IBM Plex Mono', monospace;font-size:12px;padding:7px 9px;border:1px solid var(--grid-line);border-radius:6px;width:190px;background:var(--bg);color:var(--ink);}
+.sync-controls input:focus-visible{outline:2px solid var(--amber);outline-offset:1px;}
+.sync-controls button{font-family:'IBM Plex Mono', monospace;font-size:12px;font-weight:600;padding:7px 14px;border:1px solid var(--steel);background:var(--steel);color:#fff;border-radius:6px;cursor:pointer;}
+.sync-controls button:hover{opacity:.9;}
+.sync-status{font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);margin-top:10px;}
+.sync-status a{color:var(--steel);}
+
+.progress-track{height:8px;background:var(--grid-line);border-radius:99px;overflow:hidden;margin:18px 0 26px;}
+.progress-fill{height:100%;background:linear-gradient(90deg, var(--steel), var(--ok));width:0%;transition:width .5s ease;}
+
+.section-label{font-family:'IBM Plex Mono', monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin:26px 0 8px;}
+.section-label:first-of-type{margin-top:0;}
+
+.panel{background:var(--panel);border:1px solid var(--grid-line);border-radius:var(--radius);box-shadow:0 1px 0 rgba(27,36,54,.04);}
+
+.table-scroll{overflow-x:auto;border-radius:var(--radius);}
+table{border-collapse:collapse;width:100%;min-width:900px;}
+thead th{
+  font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);font-weight:500;padding:10px 4px;text-align:center;
+  border-bottom:1px solid var(--grid-line);position:sticky;top:0;background:var(--panel);z-index:2;
+}
+thead th.wk{color:var(--steel);font-weight:600;}
+thead th.habit-col, tbody td.habit-col{
+  text-align:left;padding:10px 14px;min-width:230px;position:sticky;left:0;background:var(--panel);z-index:3;border-right:1px solid var(--grid-line);
+}
+tbody tr:not(:last-child) td{border-bottom:1px solid var(--grid-line);}
+tbody td{padding:8px 3px;text-align:center;}
+.habit-name{font-weight:600;font-size:13.5px;}
+.habit-target{display:block;font-family:'IBM Plex Mono', monospace;font-size:10.5px;color:var(--muted);font-weight:400;margin-top:1px;}
+.streak{display:inline-block;font-family:'IBM Plex Mono', monospace;font-size:10px;color:var(--ok);background:var(--ok-bg);padding:2px 6px;border-radius:99px;margin-top:5px;}
+
+.details-box{margin-top:8px;}
+.detail-chip{
+  display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono', monospace;font-size:10.5px;
+  background:var(--bg);border:1px solid var(--grid-line);border-radius:6px;padding:3px 6px;margin:0 5px 5px 0;
+}
+.detail-chip button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:12px;line-height:1;padding:0;}
+.detail-chip button:hover{color:var(--amber);}
+.detail-add{display:flex;gap:5px;margin-top:4px;}
+.detail-add input{
+  font-family:'IBM Plex Sans', sans-serif;font-size:11.5px;padding:4px 6px;border:1px solid var(--grid-line);border-radius:5px;
+  width:100%;max-width:320px;background:var(--panel);color:var(--ink);
+}
+.detail-add button{
+  font-family:'IBM Plex Mono', monospace;font-size:11px;font-weight:600;border:1px solid var(--grid-line);
+  background:var(--bg);color:var(--ink);border-radius:5px;padding:4px 8px;cursor:pointer;
+}
+.detail-add button:hover{border-color:var(--steel);color:var(--steel);}
+.detail-add.disabled input, .detail-add.disabled button{opacity:.45;pointer-events:none;}
+
+.tick{
+  appearance:none;-webkit-appearance:none;width:20px;height:20px;border:1.5px solid var(--grid-line);border-radius:5px;
+  cursor:pointer;position:relative;background:var(--panel);transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.tick:hover{border-color:var(--steel);}
+.tick:checked{background:var(--ok);border-color:var(--ok);}
+.tick:checked::after{content:'';position:absolute;left:5px;top:2px;width:6px;height:10px;border:solid white;border-width:0 2px 2px 0;transform:rotate(40deg);}
+.tick:active{transform:scale(.9);}
+.tick:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+@media (prefers-reduced-motion:reduce){.tick, .progress-fill{transition:none;}}
+
+.log-list{display:flex;flex-direction:column;gap:12px;max-height:640px;overflow-y:auto;padding:16px;}
+.log-row{display:flex;gap:14px;align-items:flex-start;padding:12px;border:1px solid var(--grid-line);border-radius:8px;background:var(--bg);}
+.log-index{font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);min-width:20px;padding-top:9px;flex:none;}
+.log-date{
+  font-family:'IBM Plex Mono', monospace;font-size:12.5px;padding:6px 8px;border:1px solid var(--grid-line);
+  border-radius:6px;background:var(--panel);color:var(--ink);min-width:150px;flex:none;
+}
+.log-body{flex:1;min-width:0;}
+
+.foot{margin-top:22px;padding-top:14px;border-top:1px solid var(--grid-line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--muted);}
+button.reset{font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);background:none;border:1px solid var(--grid-line);border-radius:6px;padding:6px 10px;cursor:pointer;}
+button.reset:hover{border-color:var(--amber);color:var(--amber);}
+.status{font-family:'IBM Plex Mono', monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="eyebrow" id="dateRangeLabel">Observer-based habit control</p>
+      <h1>Daily<span>-</span>Planner <span>//</span> 90-Day Plan</h1>
+      <p class="sub">Track daily. Every tick closes the loop.</p>
+    </div>
+    <div class="stat">
+      <div class="big" id="pct">0%</div>
+      <div class="lbl" id="pctSub">0 / 0 closed</div>
+    </div>
+  </header>
+
+  <div class="panel sync-panel" id="syncPanel">
+    <div class="sync-row">
+      <div>
+        <strong>Cloud sync (optional)</strong>
+        <p class="sync-desc">Paste a GitHub personal access token with <code>gist</code> scope to save your ticks and daily log to a private Gist, so they follow you across browsers and devices.</p>
+      </div>
+      <div class="sync-controls">
+        <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+        <button id="connectBtn">Connect</button>
+      </div>
+    </div>
+    <div class="sync-status" id="syncStatus">Not connected — saving to this browser only.</div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="fill"></div></div>
+
+  <p class="section-label">Main habits</p>
+  <div class="panel table-scroll">
+    <table id="gridMain"></table>
+  </div>
+
+  <p class="section-label">Wellness</p>
+  <div class="panel table-scroll">
+    <table id="gridWellness"></table>
+  </div>
+
+  <p class="section-label">Daily Log — 45 entries</p>
+  <div class="panel">
+    <div class="log-list" id="logList"></div>
+  </div>
+
+  <div class="foot">
+    <span class="status" id="saveStatus">loading…</span>
+    <button class="reset" id="resetBtn">Reset all ticks & log</button>
+  </div>
+
+</div>
+
+<script>
+const HABITS_MAIN = [
+  {name:"Exercise", target:"Any mix of strength + cardio."},
+  {name:"Learning language", target:" Topics - vocab/day"},
+  {name:"CV mprovement", target:"Doc update, refactor, or a CV line edited."},
+];
+const HABITS_WELLNESS = [
+  {name:"Sleep", target:"6–7 hrs"},
+  {name:"Diet", target:"on plan"},
+  {name:"Water", target:"2–2.5 L"},
+  {name:"No Sugar", target:"0 added sugar"},
+];
+const ALL_HABITS = HABITS_MAIN.concat(HABITS_WELLNESS);
+const MAIN_COUNT = HABITS_MAIN.length;
+const MAX_DETAILS = 4;
+const MAX_LOG_ITEMS = 8;
+const DAYS = 90;
+const LOG_COUNT = 45;
+const START = new Date(2026,7,10); // Aug 10 2026
+const STORAGE_KEY = 'daily-planner-90day-v4';
+
+let ticks = ALL_HABITS.map(()=>Array(DAYS).fill(false));
+let details = HABITS_MAIN.map(()=>[]);
+let logEntries = Array(LOG_COUNT).fill(null).map(()=>({date:'', items:[]}));
+
+// --- Optional GitHub Gist cloud sync ---
+const GH_TOKEN_KEY = 'daily-planner-gh-token';
+const GH_GIST_KEY = 'daily-planner-gh-gist-id-v4';
+const GIST_FILENAME = 'daily-planner-tracker-data-v4.json';
+
+const getToken = () => localStorage.getItem(GH_TOKEN_KEY) || '';
+const getGistId = () => localStorage.getItem(GH_GIST_KEY) || '';
+
+async function ghRequest(url, options = {}){
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': 'token ' + getToken(),
+      'Accept': 'application/vnd.github+json',
+      ...(options.headers || {})
+    }
+  });
+  if(!res.ok) throw new Error('GitHub API ' + res.status);
+  return res.json();
+}
+
+function setSyncStatus(html){
+  const el = document.getElementById('syncStatus');
+  if(el) el.innerHTML = html;
+}
+
+function payload(){
+  return JSON.stringify({ ticks, details, logEntries });
+}
+function applyPayload(raw){
+  const parsed = JSON.parse(raw);
+  if(parsed && Array.isArray(parsed.ticks) && parsed.ticks.length === ALL_HABITS.length){
+    ticks = parsed.ticks;
+  }
+  if(parsed && Array.isArray(parsed.details) && parsed.details.length === MAIN_COUNT){
+    details = parsed.details;
+  }
+  if(parsed && Array.isArray(parsed.logEntries) && parsed.logEntries.length === LOG_COUNT){
+    logEntries = parsed.logEntries;
+  }
+}
+
+async function loadFromGist(){
+  const gistId = getGistId();
+  if(!getToken() || !gistId) return false;
+  const gist = await ghRequest('https://api.github.com/gists/' + gistId);
+  const file = gist.files[GIST_FILENAME];
+  if(file) applyPayload(file.content);
+  setSyncStatus('Connected — synced to <a href="' + gist.html_url + '" target="_blank" rel="noopener">your Gist</a>.');
+  return true;
+}
+
+async function pushToGist(){
+  const token = getToken(), gistId = getGistId();
+  if(!token || !gistId) return;
+  try{
+    await ghRequest('https://api.github.com/gists/' + gistId, {
+      method:'PATCH',
+      body: JSON.stringify({ files: { [GIST_FILENAME]: { content: payload() } } })
+    });
+  }catch(err){
+    setSyncStatus('Cloud save failed (local copy still safe). Reconnect if this persists.');
+  }
+}
+
+async function connectGithub(){
+  const tokenInput = document.getElementById('tokenInput');
+  const token = tokenInput.value.trim();
+  if(!token){ setSyncStatus('Enter a token first.'); return; }
+  localStorage.setItem(GH_TOKEN_KEY, token);
+  tokenInput.value = '';
+  setSyncStatus('Connecting…');
+  try{
+    if(getGistId()){
+      await loadFromGist();
+      applyStateToDom();
+    } else {
+      const body = {
+        description: 'Daily Planner 90-Day Tracker data',
+        public: false,
+        files: { [GIST_FILENAME]: { content: payload() } }
+      };
+      const gist = await ghRequest('https://api.github.com/gists', { method:'POST', body: JSON.stringify(body) });
+      localStorage.setItem(GH_GIST_KEY, gist.id);
+      setSyncStatus('Connected — created <a href="' + gist.html_url + '" target="_blank" rel="noopener">a new private Gist</a>.');
+    }
+    await save();
+  }catch(err){
+    setSyncStatus('Connection failed — check the token has "gist" scope and try again.');
+  }
+}
+
+function dateForDay(i){
+  const d = new Date(START);
+  d.setDate(d.getDate()+i);
+  return d;
+}
+function isWeekStart(i){ return dateForDay(i).getDay()===1; }
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function detailsHtml(hi){
+  const list = details[hi] || [];
+  const chips = list.map((txt, di) => `
+    <span class="detail-chip">${escapeHtml(txt)}<button data-h="${hi}" data-di="${di}" class="del-detail" aria-label="Remove">×</button></span>
+  `).join('');
+  const full = list.length >= MAX_DETAILS;
+  return `
+    <div class="details-box">
+      ${chips}
+      <div class="detail-add ${full?'disabled':''}">
+        <input type="text" maxlength="40" placeholder="Add detail…" data-h="${hi}" class="detail-input">
+        <button data-h="${hi}" class="add-detail" ${full?'disabled':''}>+</button>
+      </div>
+    </div>
+  `;
+}
+
+function buildHeaderRow(){
+  let thead = '<thead><tr><th class="habit-col">Habit</th>';
+  for(let i=0;i<DAYS;i++){
+    const d = dateForDay(i);
+    thead += `<th class="${isWeekStart(i)?'wk':''}">${d.getDate()}</th>`;
+  }
+  thead += '</tr></thead>';
+  return thead;
+}
+
+function buildTable(tableId, habitList, indexOffset, includeDetails){
+  const table = document.getElementById(tableId);
+  let tbody = '<tbody>';
+  habitList.forEach((h, li)=>{
+    const hi = li + indexOffset;
+    tbody += `<tr><td class="habit-col">
+        <span class="habit-name">${h.name}</span>
+        <span class="habit-target">${h.target}</span>
+        <span class="streak" id="streak-${hi}">streak 0</span>
+        ${includeDetails ? detailsHtml(hi) : ''}
+      </td>`;
+    for(let d=0; d<DAYS; d++){
+      tbody += `<td><input type="checkbox" class="tick" data-h="${hi}" data-d="${d}"></td>`;
+    }
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = buildHeaderRow() + tbody;
+
+  table.querySelectorAll('.tick').forEach(cb => cb.addEventListener('change', onToggle));
+  if(includeDetails){
+    table.querySelectorAll('.add-detail').forEach(btn => btn.addEventListener('click', onAddDetail));
+    table.querySelectorAll('.detail-input').forEach(inp => inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ e.preventDefault(); onAddDetail({target: inp}); }
+    }));
+    table.querySelectorAll('.del-detail').forEach(btn => btn.addEventListener('click', onDeleteDetail));
+  }
+}
+
+function onToggle(e){
+  const h = +e.target.dataset.h, d = +e.target.dataset.d;
+  ticks[h][d] = e.target.checked;
+  updateStreak(h);
+  updateProgress();
+  save();
+}
+
+function onAddDetail(e){
+  const hi = +e.target.dataset.h;
+  const wrap = e.target.closest('.details-box');
+  const input = wrap.querySelector('.detail-input');
+  const val = input.value.trim();
+  if(!val) return;
+  if(details[hi].length >= MAX_DETAILS) return;
+  details[hi].push(val);
+  rebuildMainTable();
+  save();
+}
+
+function onDeleteDetail(e){
+  const hi = +e.target.dataset.h, di = +e.target.dataset.di;
+  details[hi].splice(di, 1);
+  rebuildMainTable();
+  save();
+}
+
+function rebuildMainTable(){
+  buildTable('gridMain', HABITS_MAIN, 0, true);
+  applyTicksToDom();
+}
+
+function updateStreak(h){
+  let s = 0;
+  for(let d=DAYS-1; d>=0; d--){ if(ticks[h][d]) s++; else break; }
+  const el = document.getElementById('streak-'+h);
+  if(el) el.textContent = 'streak ' + s;
+}
+
+function updateProgress(){
+  const total = ALL_HABITS.length*DAYS;
+  let done = 0;
+  ticks.forEach(row => row.forEach(v => { if(v) done++; }));
+  const pct = Math.round((done/total)*100);
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('pctSub').textContent = `${done} / ${total} closed`;
+  document.getElementById('fill').style.width = pct + '%';
+}
+
+function applyTicksToDom(){
+  document.querySelectorAll('.tick').forEach(cb=>{
+    const h = +cb.dataset.h, d = +cb.dataset.d;
+    cb.checked = !!ticks[h][d];
+  });
+  ALL_HABITS.forEach((_,hi)=>updateStreak(hi));
+  updateProgress();
+}
+
+// --- Daily Log: 45 independent entries, each with its own date + plan items ---
+function logItemsHtml(idx){
+  const list = (logEntries[idx] && logEntries[idx].items) || [];
+  const chips = list.map((txt, di) => `
+    <span class="detail-chip">${escapeHtml(txt)}<button data-idx="${idx}" data-di="${di}" class="del-log-item" aria-label="Remove">×</button></span>
+  `).join('');
+  const full = list.length >= MAX_LOG_ITEMS;
+  return `
+    <div class="details-box">
+      ${chips}
+      <div class="detail-add ${full?'disabled':''}">
+        <input type="text" maxlength="60" placeholder="Add a plan item or note…" data-idx="${idx}" class="log-item-input">
+        <button data-idx="${idx}" class="add-log-item" ${full?'disabled':''}>+</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderLog(){
+  const container = document.getElementById('logList');
+  let html = '';
+  for(let i=0;i<LOG_COUNT;i++){
+    const entry = logEntries[i] || {date:'', items:[]};
+    html += `<div class="log-row">
+      <span class="log-index">${i+1}</span>
+      <input type="date" class="log-date" data-idx="${i}" value="${entry.date || ''}">
+      <div class="log-body">${logItemsHtml(i)}</div>
+    </div>`;
+  }
+  container.innerHTML = html;
+
+  container.querySelectorAll('.log-date').forEach(inp => inp.addEventListener('change', onLogDateChange));
+  container.querySelectorAll('.add-log-item').forEach(btn => btn.addEventListener('click', onAddLogItem));
+  container.querySelectorAll('.log-item-input').forEach(inp => inp.addEventListener('keydown', e => {
+    if(e.key === 'Enter'){ e.preventDefault(); onAddLogItem({target: inp}); }
+  }));
+  container.querySelectorAll('.del-log-item').forEach(btn => btn.addEventListener('click', onDeleteLogItem));
+}
+
+function onLogDateChange(e){
+  const idx = +e.target.dataset.idx;
+  logEntries[idx].date = e.target.value;
+  save();
+}
+
+function onAddLogItem(e){
+  const idx = +e.target.dataset.idx;
+  const wrap = e.target.closest('.log-body');
+  const input = wrap.querySelector('.log-item-input');
+  const val = input.value.trim();
+  if(!val) return;
+  if(!logEntries[idx]) logEntries[idx] = {date:'', items:[]};
+  if(logEntries[idx].items.length >= MAX_LOG_ITEMS) return;
+  logEntries[idx].items.push(val);
+  renderLog();
+  save();
+}
+
+function onDeleteLogItem(e){
+  const idx = +e.target.dataset.idx, di = +e.target.dataset.di;
+  logEntries[idx].items.splice(di, 1);
+  renderLog();
+  save();
+}
+
+function applyStateToDom(){
+  rebuildMainTable();
+  buildTable('gridWellness', HABITS_WELLNESS, MAIN_COUNT, false);
+  applyTicksToDom();
+  renderLog();
+}
+
+async function load(){
+  const statusEl = document.getElementById('saveStatus');
+  const rangeLabel = document.getElementById('dateRangeLabel');
+  const endDate = dateForDay(DAYS-1);
+  rangeLabel.textContent = 'Observer-based habit control · ' +
+    START.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' +
+    endDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) applyPayload(raw);
+    statusEl.textContent = 'synced';
+  }catch(err){
+    statusEl.textContent = 'starting fresh';
+  }
+
+  if(getToken() && getGistId()){
+    try{ await loadFromGist(); }
+    catch(err){ setSyncStatus('Cloud sync failed to load — showing your last local copy.'); }
+  }
+
+  applyStateToDom();
+}
+
+async function save(){
+  const statusEl = document.getElementById('saveStatus');
+  statusEl.textContent = 'saving…';
+  try{
+    localStorage.setItem(STORAGE_KEY, payload());
+    statusEl.textContent = 'synced';
+  }catch(err){
+    statusEl.textContent = 'save failed';
+  }
+  await pushToGist();
+}
+
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  if(!confirm('Reset every tick and the entire daily log?')) return;
+  ticks = ALL_HABITS.map(()=>Array(DAYS).fill(false));
+  details = HABITS_MAIN.map(()=>[]);
+  logEntries = Array(LOG_COUNT).fill(null).map(()=>({date:'', items:[]}));
+  applyStateToDom();
+  await save();
+});
+
+document.getElementById('connectBtn').addEventListener('click', connectGithub);
+
+load();
+</script>
+</body>
+</html>
